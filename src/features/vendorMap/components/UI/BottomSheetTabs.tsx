@@ -42,9 +42,16 @@ const BottomSheetTabs: React.FC<BottomSheetTabsProps> = ({
     return <VendorDetailView vendor={selectedVendor} />;
   }
 
+  const filteredVendors = getTabData();
+
   return (
     <View style={styles.container}>
-      <View style={styles.tabContainer}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.tabScroll}
+        contentContainerStyle={styles.tabContainer}
+      >
         {tabs.map((tab) => (
           <TouchableOpacity
             key={tab}
@@ -56,12 +63,18 @@ const BottomSheetTabs: React.FC<BottomSheetTabsProps> = ({
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
 
       <ScrollView style={styles.vendorsList}>
-        {getTabData().map((vendor) => (
-          <VendorCard key={vendor.id} vendor={vendor} onPress={() => onVendorSelect(vendor)} />
-        ))}
+        {filteredVendors.length > 0 ? (
+          filteredVendors.map((vendor) => (
+            <VendorCard key={vendor.id} vendor={vendor} onPress={() => onVendorSelect(vendor)} />
+          ))
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>No vendors found in this tab.</Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -72,25 +85,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  tabContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
+  tabScroll: {
     borderBottomColor: '#eee',
+    borderBottomWidth: 1,
+    paddingVertical: 8,
+  },
+  tabContainer: {
+    paddingHorizontal: 16,
+    flexDirection: 'row',
   },
   tab: {
+    paddingVertical: 8,
     paddingHorizontal: 20,
-    paddingVertical: 10,
     borderRadius: 20,
+    backgroundColor: '#F0F0F0',
     marginRight: 10,
   },
   activeTab: {
     backgroundColor: '#007AFF',
   },
   tabText: {
-    color: '#666',
     fontSize: 14,
+    color: '#666',
     fontWeight: '500',
   },
   activeTabText: {
@@ -98,7 +114,16 @@ const styles = StyleSheet.create({
   },
   vendorsList: {
     flex: 1,
-    paddingHorizontal: 20,
+    padding: 20,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 40,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#999',
   },
 });
 

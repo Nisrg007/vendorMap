@@ -18,35 +18,42 @@ const VendorCard: React.FC<VendorCardProps> = ({ vendor, onPress }) => (
   <TouchableOpacity style={styles.card} onPress={() => onPress(vendor)}>
     <Image source={{ uri: vendor.image }} style={styles.image} />
 
-    <View style={styles.info}>
-      <Text style={styles.name}>{vendor.name}</Text>
+    <View style={styles.infoContainer}>
+      <View style={styles.topRow}>
+        <Text style={styles.name} numberOfLines={1}>{vendor.name}</Text>
 
-      <View style={styles.meta}>
-        <Icon name="star" size={14} color="#FFD700" />
-        <Text style={styles.rating}>{vendor.rating}</Text>
-        <Text style={styles.price}>{vendor.priceRange}</Text>
-        <Text style={styles.distance}>{vendor.distance}km</Text>
+        <View
+          style={[
+            styles.statusBadge,
+            { backgroundColor: vendor.isOpen ? '#DFF6E0' : '#F0F0F0' },
+          ]}
+        >
+          <View
+            style={[
+              styles.statusDot,
+              { backgroundColor: vendor.isOpen ? '#4CAF50' : '#999' },
+            ]}
+          />
+          <Text style={[styles.statusText, { color: vendor.isOpen ? '#4CAF50' : '#999' }]}>
+            {vendor.isOpen ? 'Open' : 'Closed'}
+          </Text>
+        </View>
       </View>
 
-      <View style={styles.tags}>
+      <View style={styles.metaRow}>
+        <Icon name="star" size={14} color="#FFD700" />
+        <Text style={styles.metaText}>{vendor.rating}</Text>
+        <Text style={styles.metaText}>{vendor.priceRange}</Text>
+        <Text style={styles.metaText}>{vendor.distance} km</Text>
+      </View>
+
+      <View style={styles.tagRow}>
         {vendor.tags.slice(0, 2).map((tag, index) => (
           <Text key={index} style={styles.tag}>
             {tag}
           </Text>
         ))}
       </View>
-    </View>
-
-    <View style={styles.status}>
-      <View
-        style={[
-          styles.statusDot,
-          { backgroundColor: vendor.isOpen ? '#4CAF50' : '#999' },
-        ]}
-      />
-      <Text style={styles.statusText}>
-        {vendor.isOpen ? 'Open' : 'Closed'}
-      </Text>
     </View>
   </TouchableOpacity>
 );
@@ -60,74 +67,74 @@ const styles = StyleSheet.create({
     padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
+    alignItems: 'center',
   },
   image: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
+    width: 64,
+    height: 64,
+    borderRadius: 12,
     backgroundColor: '#f0f0f0',
   },
-  info: {
+  infoContainer: {
     flex: 1,
     marginLeft: 12,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   name: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 4,
+    flex: 1,
+    marginRight: 8,
   },
-  meta: {
+  statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  rating: {
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 4,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 6,
+  },
+  metaText: {
     fontSize: 12,
     color: '#666',
-    marginLeft: 4,
-    marginRight: 8,
+    marginLeft: 6,
+    marginRight: 12,
   },
-  price: {
-    fontSize: 12,
-    color: '#666',
-    marginRight: 8,
-  },
-  distance: {
-    fontSize: 12,
-    color: '#666',
-  },
-  tags: {
+  tagRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   tag: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#007AFF',
     backgroundColor: '#E3F2FD',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 10,
-    marginRight: 4,
-    marginBottom: 2,
-  },
-  status: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingLeft: 12,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    marginRight: 6,
     marginBottom: 4,
-  },
-  statusText: {
-    fontSize: 10,
-    color: '#666',
   },
 });
 

@@ -16,6 +16,7 @@ interface VendorFilters {
   isOpen: boolean | null;
   priceRange: string | null;
   minRating: number | null;
+  searchQuery: string | null;
 }
 
 interface DataContextType {
@@ -23,6 +24,7 @@ interface DataContextType {
   loading: boolean;
   filters: VendorFilters;
   setFilters: React.Dispatch<React.SetStateAction<VendorFilters>>;
+  resetFilters: () => void;
   refreshVendors: () => void;
 }
 
@@ -40,13 +42,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     isOpen: null,
     priceRange: null,
     minRating: null,
+    searchQuery: null,
   });
 
   useEffect(() => {
-    loadVendors();
+    refreshVendors();
   }, []);
 
-  const loadVendors = async () => {
+  const refreshVendors = async () => {
     try {
       setLoading(true);
 
@@ -61,12 +64,27 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
 
+  const resetFilters = () => {
+    setFilters({
+      isVeg: null,
+      isOpen: null,
+      priceRange: null,
+      minRating: null,
+      searchQuery: null,
+    });
+  };
+
   const filteredVendors = useMemo(() => {
     return vendors.filter((vendor) => {
       if (filters.isVeg !== null && vendor.isVeg !== filters.isVeg) return false;
       if (filters.isOpen !== null && vendor.isOpen !== filters.isOpen) return false;
       if (filters.priceRange && vendor.priceRange !== filters.priceRange) return false;
       if (filters.minRating && vendor.rating < filters.minRating) return false;
+      if (
+        filters.searchQuery &&
+        !vendor.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
+        !vendor.tags.some(tag => tag.toLowerCase().includes(filters.searchQuery!.toLowerCase()))
+      ) return false;
       return true;
     });
   }, [vendors, filters]);
@@ -76,7 +94,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     loading,
     filters,
     setFilters,
-    refreshVendors: loadVendors,
+    resetFilters,
+    refreshVendors,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

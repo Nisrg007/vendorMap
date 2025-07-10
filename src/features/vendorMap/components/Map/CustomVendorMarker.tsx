@@ -1,32 +1,36 @@
+// src/features/vendorMap/components/Map/CustomVendorMarker.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Animated } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { Vendor } from '../../../../types/vendor';
 
-interface VendorMarkerProps {
+interface CustomVendorMarkerProps {
   vendor: Vendor;
   onPress: (vendor: Vendor) => void;
   isSelected: boolean;
 }
 
-const VendorMarker: React.FC<VendorMarkerProps> = ({ vendor, onPress, isSelected }) => {
+const CustomVendorMarker: React.FC<CustomVendorMarkerProps> = ({
+  vendor,
+  onPress,
+  isSelected,
+}) => {
   return (
     <Marker
       coordinate={{ latitude: vendor.latitude, longitude: vendor.longitude }}
       onPress={() => onPress(vendor)}
     >
-      <View style={styles.container}>
+      <View style={styles.wrapper}>
         <View
           style={[
-            styles.marker,
+            styles.outerCircle,
             {
-              backgroundColor: isSelected
-                ? '#007AFF'
-                : !vendor.isOpen
+              borderColor: !vendor.isOpen
                 ? '#999'
                 : vendor.isVeg
                 ? '#4CAF50'
                 : '#FF6B6B',
+              transform: [{ scale: isSelected ? 1.2 : 1 }],
             },
           ]}
         >
@@ -34,7 +38,9 @@ const VendorMarker: React.FC<VendorMarkerProps> = ({ vendor, onPress, isSelected
         </View>
         {isSelected && (
           <View style={styles.label}>
-            <Text style={styles.labelText}>{vendor.name}</Text>
+            <Text style={styles.labelText} numberOfLines={1}>
+              {vendor.name}
+            </Text>
           </View>
         )}
       </View>
@@ -43,44 +49,46 @@ const VendorMarker: React.FC<VendorMarkerProps> = ({ vendor, onPress, isSelected
 };
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     alignItems: 'center',
   },
-  marker: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  outerCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
+    backgroundColor: '#fff',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
   },
   label: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 3,
     borderRadius: 8,
     marginTop: 5,
+    maxWidth: 100,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 2,
     elevation: 3,
   },
   labelText: {
-    fontWeight: 'bold',
     fontSize: 12,
+    fontWeight: '600',
+    color: '#333',
   },
 });
 
-export default VendorMarker;
+export default CustomVendorMarker;

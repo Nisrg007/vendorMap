@@ -11,7 +11,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from '../components/UI/SearchBar';
 import FilterModal from '../components/UI/FilterModal';
-import VendorMarker from '../components/Map/VendorMarker';
+import CustomVendorMarker from '../components/Map/CustomVendorMarker';
 import BottomSheetTabs from '../components/UI/BottomSheetTabs';
 import { useData } from '../services/DataProvider';
 import { Vendor } from '../../../types/vendor';
@@ -63,7 +63,7 @@ const VendorMapScreen: React.FC = () => {
         onPress={handleMapPress}
       >
         {vendors.map((vendor) => (
-          <VendorMarker
+          <CustomVendorMarker
             key={vendor.id}
             vendor={vendor}
             onPress={handleVendorPress}
