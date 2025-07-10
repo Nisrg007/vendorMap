@@ -10,22 +10,116 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useData } from '../../services/DataProvider';
+import Svg, { Circle, Path, Polygon, G, Defs, LinearGradient, Stop } from 'react-native-svg';
+
+
 
 interface FilterModalProps {
   visible: boolean;
   onClose: () => void;
 }
 
+interface FoodPatternBorderProps {
+  width: number;
+  height: number;
+}
+
+interface FoodIconProps {
+  type: 'taco' | 'pizza' | 'burger' | 'noodles';
+  size?: number;
+  color?: string;
+}
+
+// Street Food Mandala Component
+const StreetFoodMandala = ({ size = 40, color = '#FF6B35' }) => (
+  <Svg width={size} height={size} viewBox="0 0 40 40">
+    <Defs>
+      <LinearGradient id="foodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor={color} stopOpacity="0.8" />
+        <Stop offset="100%" stopColor={color} stopOpacity="0.4" />
+      </LinearGradient>
+    </Defs>
+    <G transform="translate(20,20)">
+      {/* Central circle */}
+      <Circle r="3" fill={color} />
+
+      {/* Food elements arranged in mandala pattern */}
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, index) => (
+        <G key={index} transform={`rotate(${angle})`}>
+          <Path
+            d="M 0,-12 Q 2,-14 4,-12 Q 2,-10 0,-12"
+            fill="url(#foodGradient)"
+          />
+          <Circle r="1.5" cx="0" cy="-8" fill={color} opacity="0.6" />
+        </G>
+      ))}
+
+      {/* Outer decorative ring */}
+      <Circle r="16" fill="none" stroke={color} strokeWidth="0.5" opacity="0.3" />
+      <Circle r="14" fill="none" stroke={color} strokeWidth="0.3" opacity="0.2" />
+    </G>
+  </Svg>
+);
+
+// Food Pattern Border Component
+const FoodPatternBorder = ({ width, height }: FoodPatternBorderProps) => (
+  <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={styles.patternBorder}>
+    <Defs>
+      <LinearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <Stop offset="0%" stopColor="#FF6B35" stopOpacity="0.1" />
+        <Stop offset="50%" stopColor="#FFD23F" stopOpacity="0.2" />
+        <Stop offset="100%" stopColor="#FF6B35" stopOpacity="0.1" />
+      </LinearGradient>
+    </Defs>
+    {/* Street food icons pattern */}
+    {Array.from({ length: Math.floor(width / 30) }).map((_, i) => (
+      <G key={i} transform={`translate(${i * 30 + 15}, ${height / 2})`}>
+        <Path
+          d="M -4,-4 Q 0,-6 4,-4 Q 0,-2 -4,-4"
+          fill="url(#borderGradient)"
+        />
+      </G>
+    ))}
+  </Svg>
+);
+
+// Decorative Food Icon Component
+const FoodIcon: React.FC<FoodIconProps> = ({ type, size = 20, color = '#FF6B35' }) => {
+  const paths = {
+    taco:
+      'M2 8c0-1.5 1.5-3 4-3s4 1.5 4 3v1c0 1.5-1.5 3-4 3s-4-1.5-4-3V8z M3 8h6 M4 6v4 M6 6v4 M8 6v4',
+    pizza:
+      'M12 2L2 7l10 5 10-5-10-5z M2 7l10 5 M12 2v10 M22 7l-10 5',
+    burger:
+      'M4 6h12c1 0 2 1 2 2v1H2V8c0-1 1-2 2-2z M2 9h16v2c0 1-1 2-2 2H4c-1 0-2-1-2-2V9z M6 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2',
+    noodles:
+      'M4 4c0 2 2 4 4 4s4-2 4-4 M4 8c0 2 2 4 4 4s4-2 4-4 M4 12c0 2 2 4 4 4s4-2 4-4',
+
+  };
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        d={paths[type] || paths.taco}
+        stroke={color}
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
+
 const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
   const { filters, setFilters, refreshVendors } = useData();
 
   const toggleFilter = (key: keyof typeof filters, value: any) => {
-  setFilters((prev) => ({
-    ...prev,
-    [key]: value ? value : null,
-  }));
-};
-
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value ? value : null,
+    }));
+  };
 
   const resetAllFilters = () => {
     setFilters({
@@ -54,14 +148,25 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
   ];
 
   return (
-    <Modal 
-      animationType="slide" 
-      transparent 
-      visible={visible} 
+    <Modal
+      animationType="slide"
+      transparent
+      visible={visible}
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
+          {/* Decorative Header with Mandala */}
+          <View style={styles.decorativeHeader}>
+            <StreetFoodMandala size={60} color="#FF6B35" />
+            <View style={styles.headerMandalaLeft}>
+              <StreetFoodMandala size={30} color="#FFD23F" />
+            </View>
+            <View style={styles.headerMandalaRight}>
+              <StreetFoodMandala size={25} color="#06C167" />
+            </View>
+          </View>
+
           {/* Header */}
           <View style={styles.modalHeader}>
             <View style={styles.headerLeft}>
@@ -75,7 +180,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
               )}
             </View>
             <View style={styles.headerActions}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={resetAllFilters}
                 style={styles.resetButton}
               >
@@ -89,11 +194,14 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
 
           <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
             {/* Food Type */}
-            <View style={styles.filterSection}>
-              <Text style={styles.sectionTitle}>
-                <Icon name="eco" size={18} color="#4CAF50" style={styles.sectionIcon} />
-                Food Type
-              </Text>
+            <View style={[styles.filterSection, styles.vegSection]}>
+              <View style={styles.sectionTitleContainer}>
+                <View style={styles.sectionTitleLeft}>
+                  <Icon name="dinner-dining" size={20} color="#4CAF50" />
+                  <Text style={styles.sectionTitle}>Food Type</Text>
+                </View>
+                <StreetFoodMandala size={30} color="#4CAF50" />
+              </View>
               <View style={styles.switchContainer}>
                 <View style={styles.switchRow}>
                   <View style={styles.switchLabel}>
@@ -112,11 +220,14 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
             </View>
 
             {/* Availability */}
-            <View style={styles.filterSection}>
-              <Text style={styles.sectionTitle}>
-                <Icon name="schedule" size={18} color="#FF9800" style={styles.sectionIcon} />
-                Availability
-              </Text>
+            <View style={[styles.filterSection, styles.timeSection]}>
+              <View style={styles.sectionTitleContainer}>
+                <View style={styles.sectionTitleLeft}>
+                  <Icon name="location-on" size={20} color="#4CAF50" />
+                  <Text style={styles.sectionTitle}>Availability</Text>
+                </View>
+                <StreetFoodMandala size={30} color="#FF9800" />
+              </View>
               <View style={styles.switchContainer}>
                 <View style={styles.switchRow}>
                   <View style={styles.switchLabel}>
@@ -135,13 +246,16 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
             </View>
 
             {/* Price Range */}
-            <View style={styles.filterSection}>
-              <Text style={styles.sectionTitle}>
-                <Icon name="attach_money" size={18} color="#2196F3" style={styles.sectionIcon} />
-                Price Range
-              </Text>
+            <View style={[styles.filterSection, styles.priceSection]}>
+              <View style={styles.sectionTitleContainer}>
+                <View style={styles.sectionTitleLeft}>
+                  <Icon name="attach-money" size={20} color="#4CAF50" />
+                  <Text style={styles.sectionTitle}>Price Range</Text>
+                </View>
+                <StreetFoodMandala size={30} color="#2196F3" />
+              </View>
               <View style={styles.priceButtonsContainer}>
-                {['$', '$$', '$$$'].map((price) => (
+                {['₹', '₹₹', '₹₹₹'].map((price, index) => (
                   <TouchableOpacity
                     key={price}
                     style={[
@@ -150,31 +264,49 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
                     ]}
                     onPress={() => toggleFilter('priceRange', price)}
                   >
-                    <Text
-                      style={[
-                        styles.priceText,
-                        filters.priceRange === price && styles.priceTextSelected,
-                      ]}
-                    >
-                      {price}
-                    </Text>
-                    <Text style={[
-                      styles.priceDescription,
-                      filters.priceRange === price && styles.priceDescriptionSelected,
-                    ]}>
-                      {price === '$' ? 'Budget' : price === '$$' ? 'Moderate' : 'Premium'}
-                    </Text>
+                    <View style={styles.priceButtonContent}>
+                      <Text
+                        style={[
+                          styles.priceText,
+                          filters.priceRange === price && styles.priceTextSelected,
+                        ]}
+                      >
+                        {price}
+                      </Text>
+                      <Text style={[
+                        styles.priceDescription,
+                        filters.priceRange === price && styles.priceDescriptionSelected,
+                      ]}>
+                        {price === '₹' ? 'Budget' : price === '₹₹' ? 'Moderate' : 'Premium'}
+                      </Text>
+                      <View style={styles.priceIcon}>
+                        <Icon
+                          name={
+                            price === '₹'
+                              ? 'money-off'
+                              : price === '₹₹'
+                                ? 'attach-money'
+                                : 'payments'
+                          }
+                          size={16}
+                          color={filters.priceRange === price ? '#fff' : '#2196F3'}
+                        />
+                      </View>
+                    </View>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
 
             {/* Rating */}
-            <View style={styles.filterSection}>
-              <Text style={styles.sectionTitle}>
-                <Icon name="star" size={18} color="#FFD700" style={styles.sectionIcon} />
-                Minimum Rating
-              </Text>
+            <View style={[styles.filterSection, styles.ratingSection]}>
+              <View style={styles.sectionTitleContainer}>
+                <View style={styles.sectionTitleLeft}>
+                  <FoodIcon type="pizza" size={20} color="#FFD700" />
+                  <Text style={styles.sectionTitle}>Minimum Rating</Text>
+                </View>
+                <StreetFoodMandala size={30} color="#FFD700" />
+              </View>
               <View style={styles.ratingContainer}>
                 {ratingOptions.map((rating) => (
                   <TouchableOpacity
@@ -185,10 +317,10 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
                     ]}
                     onPress={() => toggleFilter('minRating', rating.value)}
                   >
-                    <Icon 
-                      name="star" 
-                      size={16} 
-                      color={filters.minRating === rating.value ? '#fff' : '#FFD700'} 
+                    <Icon
+                      name="star"
+                      size={16}
+                      color={filters.minRating === rating.value ? '#fff' : '#FFD700'}
                     />
                     <Text
                       style={[
@@ -204,14 +336,18 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
             </View>
           </ScrollView>
 
-          {/* Apply Button */}
+          {/* Apply Button with Decorative Elements */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
-              <Text style={styles.applyButtonText}>
-                Apply Filters
-                {getActiveFiltersCount() > 0 && ` (${getActiveFiltersCount()})`}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.buttonDecorative}>
+              <StreetFoodMandala size={20} color="#06C167" />
+              <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
+                <Text style={styles.applyButtonText}>
+                  Apply Filters
+                  {getActiveFiltersCount() > 0 && ` (${getActiveFiltersCount()})`}
+                </Text>
+              </TouchableOpacity>
+              <StreetFoodMandala size={20} color="#06C167" />
+            </View>
           </View>
         </View>
       </View>
@@ -229,12 +365,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '75%',
+    maxHeight: '85%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
+  },
+  decorativeHeader: {
+    height: 40,
+    backgroundColor: '#FFF8F0',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFE4CC',
+  },
+  headerMandalaLeft: {
+    position: 'absolute',
+    left: 30,
+    top: 5,
+  },
+  headerMandalaRight: {
+    position: 'absolute',
+    right: 30,
+    top: 7,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -259,7 +416,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   activeFiltersCount: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6B35',
     borderRadius: 10,
     width: 20,
     height: 20,
@@ -275,10 +432,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
+    borderWidth: 1,
+    borderColor: '#FFD23F',
   },
   resetText: {
-    color: '#007AFF',
+    color: '#FF6B35',
     fontWeight: '600',
     fontSize: 15,
   },
@@ -291,22 +450,55 @@ const styles = StyleSheet.create({
   },
   filterSection: {
     marginBottom: 32,
+    borderRadius: 16,
+    padding: 16,
+    position: 'relative',
+  },
+  vegSection: {
+    backgroundColor: '#F1F8E9',
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+  },
+  timeSection: {
+    backgroundColor: '#FFF8E1',
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF9800',
+  },
+  priceSection: {
+    backgroundColor: '#E3F2FD',
+    borderLeftWidth: 4,
+    borderLeftColor: '#2196F3',
+  },
+  ratingSection: {
+    backgroundColor: '#FFFDE7',
+    borderLeftWidth: 4,
+    borderLeftColor: '#FFD700',
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#1C1C1E',
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sectionIcon: {
-    marginRight: 8,
+    marginLeft: 8,
   },
   switchContainer: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   switchRow: {
     flexDirection: 'row',
@@ -330,17 +522,24 @@ const styles = StyleSheet.create({
   },
   priceButton: {
     flex: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#E5E5EA',
-    backgroundColor: '#F8F9FA',
-    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   priceButtonSelected: {
     backgroundColor: '#2196F3',
     borderColor: '#2196F3',
+  },
+  priceButtonContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    alignItems: 'center',
   },
   priceText: {
     fontSize: 18,
@@ -355,9 +554,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#8E8E93',
     fontWeight: '500',
+    marginBottom: 8,
   },
   priceDescriptionSelected: {
     color: '#fff',
+  },
+  priceIcon: {
+    marginTop: 4,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -373,10 +576,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#E5E5EA',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FFFFFF',
     flex: 1,
     maxWidth: '48%',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   ratingButtonSelected: {
     backgroundColor: '#FFD700',
@@ -394,23 +602,38 @@ const styles = StyleSheet.create({
   buttonContainer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#fff',
+    borderTopColor: '#F0F0F0',
+    backgroundColor: '#FFF8F0',
+  },
+  buttonDecorative: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   applyButton: {
     backgroundColor: '#06C167',
     paddingVertical: 16,
-    borderRadius: 14,
+    paddingHorizontal: 40,
+    borderRadius: 25,
     alignItems: 'center',
     shadowColor: '#04A957',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
+    flex: 1,
+    marginHorizontal: 16,
   },
   applyButtonText: {
     color: '#fff',
     fontSize: 17,
     fontWeight: '700',
+  },
+  patternBorder: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
 });
 
