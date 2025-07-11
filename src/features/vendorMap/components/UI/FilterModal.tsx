@@ -160,7 +160,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
                 <Text style={styles.resetText}>Reset</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Icon name="close" size={24} color="#666" />
+                <Icon name="close" size={24} color="#06C167" />
               </TouchableOpacity>
             </View>
           </View>
@@ -419,6 +419,15 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
     marginLeft: 8,
+    elevation: 5,
+    backgroundColor: 'black',
+    borderRadius: 25,
+    borderColor: '#06C167',
+    borderWidth: 1,
+    shadowColor: '#06C167',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0,
+    shadowRadius: 8,
   },
   filterContent: {
     padding: 20,
@@ -586,12 +595,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   applyButton: {
-    backgroundColor: '#06C167',
+    backgroundColor: '#1c1c1c',
     paddingVertical: 16,
     paddingHorizontal: 40,
     borderRadius: 25,
     alignItems: 'center',
-    shadowColor: '#04A957',
+    shadowColor: '#fff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -600,7 +609,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   applyButtonText: {
-    color: '#fff',
+    color: '#06C167',
     fontSize: 17,
     fontWeight: '700',
   },

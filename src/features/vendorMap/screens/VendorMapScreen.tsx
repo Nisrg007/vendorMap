@@ -15,6 +15,8 @@ import CustomVendorMarker from '../components/Map/CustomVendorMarker';
 import BottomSheetTabs from '../components/UI/BottomSheetTabs';
 import { useData } from '../services/DataProvider';
 import { Vendor } from '../../../types/vendor';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 const VendorMapScreen: React.FC = () => {
   const { vendors, loading } = useData();
@@ -78,7 +80,7 @@ const VendorMapScreen: React.FC = () => {
         style={styles.filterButton}
         onPress={() => setFilterVisible(true)}
       >
-        <Text style={styles.filterIcon}>⚙️</Text>
+        <Icon name="tune" size={24} color="#2E7D32" /> 
       </TouchableOpacity>
 
       <FilterModal
@@ -116,15 +118,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     right: 15,
-    backgroundColor: '#007AFF',
+    backgroundColor: 'black',
     borderRadius: 25,
     padding: 12,
     zIndex: 1000,
-    shadowColor: '#000',
+    shadowColor: '#06C167',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0,
     shadowRadius: 8,
     elevation: 5,
+    borderColor: '#06C167',
+    borderWidth: 1
   },
   filterIcon: {
     fontSize: 20,
