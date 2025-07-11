@@ -19,11 +19,6 @@ interface FilterModalProps {
   onClose: () => void;
 }
 
-interface FoodPatternBorderProps {
-  width: number;
-  height: number;
-}
-
 interface FoodIconProps {
   type: 'taco' | 'pizza' | 'burger' | 'noodles';
   size?: number;
@@ -58,28 +53,6 @@ const StreetFoodMandala = ({ size = 40, color = '#FF6B35' }) => (
       <Circle r="16" fill="none" stroke={color} strokeWidth="0.5" opacity="0.3" />
       <Circle r="14" fill="none" stroke={color} strokeWidth="0.3" opacity="0.2" />
     </G>
-  </Svg>
-);
-
-// Food Pattern Border Component
-const FoodPatternBorder = ({ width, height }: FoodPatternBorderProps) => (
-  <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={styles.patternBorder}>
-    <Defs>
-      <LinearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <Stop offset="0%" stopColor="#FF6B35" stopOpacity="0.1" />
-        <Stop offset="50%" stopColor="#FFD23F" stopOpacity="0.2" />
-        <Stop offset="100%" stopColor="#FF6B35" stopOpacity="0.1" />
-      </LinearGradient>
-    </Defs>
-    {/* Street food icons pattern */}
-    {Array.from({ length: Math.floor(width / 30) }).map((_, i) => (
-      <G key={i} transform={`translate(${i * 30 + 15}, ${height / 2})`}>
-        <Path
-          d="M -4,-4 Q 0,-6 4,-4 Q 0,-2 -4,-4"
-          fill="url(#borderGradient)"
-        />
-      </G>
-    ))}
   </Svg>
 );
 
@@ -193,6 +166,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
           </View>
 
           <ScrollView style={styles.filterContent} showsVerticalScrollIndicator={false}>
+            
             {/* Food Type */}
             <View style={[styles.filterSection, styles.vegSection]}>
               <View style={styles.sectionTitleContainer}>
@@ -302,8 +276,8 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose }) => {
             <View style={[styles.filterSection, styles.ratingSection]}>
               <View style={styles.sectionTitleContainer}>
                 <View style={styles.sectionTitleLeft}>
-                  <FoodIcon type="pizza" size={20} color="#FFD700" />
-                  <Text style={styles.sectionTitle}>Minimum Rating</Text>
+                  <Icon name="stars" size={20} color="#FFD700" />
+                  <Text style={styles.sectionTitle}>Rating</Text>
                 </View>
                 <StreetFoodMandala size={30} color="#FFD700" />
               </View>
@@ -422,6 +396,7 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 12
   },
   activeFiltersText: {
     color: '#fff',

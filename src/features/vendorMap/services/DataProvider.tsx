@@ -21,6 +21,7 @@ interface VendorFilters {
 
 interface DataContextType {
   vendors: Vendor[];
+  allVendors: Vendor[];
   loading: boolean;
   filters: VendorFilters;
   setFilters: React.Dispatch<React.SetStateAction<VendorFilters>>;
@@ -91,6 +92,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const value: DataContextType = {
     vendors: filteredVendors,
+    allVendors: vendors,
     loading,
     filters,
     setFilters,

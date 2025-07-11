@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  NativeSyntheticEvent,
-  TextInputSubmitEditingEventData,
   Text,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useData } from '../../services/DataProvider';
@@ -14,11 +14,10 @@ import { useData } from '../../services/DataProvider';
 const SearchBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const { setFilters, refreshVendors, resetFilters } = useData();
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const { allVendors, setFilters, refreshVendors, resetFilters } = useData();
 
-  const handleSearch = async (
-    e?: NativeSyntheticEvent<TextInputSubmitEditingEventData>
-  ) => {
+  const handleSearch = async () => {
     const query = searchQuery.trim().toLowerCase();
 
     if (query === '') {
@@ -33,88 +32,99 @@ const SearchBar: React.FC = () => {
     }));
 
     await refreshVendors();
+    setIsFocused(false);
+    setSuggestions([]);
+    Keyboard.dismiss();
   };
 
   const clearSearch = () => {
     setSearchQuery('');
     resetFilters();
     refreshVendors();
+    setSuggestions([]);
   };
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
 
+  const handleSuggestionPress = (text: string) => {
+    setSearchQuery(text);
+    handleSearch();
+  };
+
+  useEffect(() => {
+    if (searchQuery.length === 0) {
+      setSuggestions([]);
+      return;
+    }
+
+    const lowerQuery = searchQuery.toLowerCase();
+
+    const matches = allVendors
+      .flatMap((vendor) => [vendor.name, ...(vendor.tags || [])])
+      .filter((item) => item.toLowerCase().includes(lowerQuery))
+      .filter((item, index, self) => self.indexOf(item) === index) // remove duplicates
+      .slice(0, 5);
+
+    setSuggestions(matches);
+  }, [searchQuery, allVendors]);
+
   return (
-    <View style={styles.container}>
-      <View style={[styles.searchBar, isFocused && styles.searchBarFocused]}>
-        <Icon
-          name="search"
-          size={24}
-          color={isFocused ? '#007AFF' : '#8E8E93'}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.input}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearch}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder="Search for street food vendors..."
-          placeholderTextColor="#8E8E93"
-          returnKeyType="search"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity
-            onPress={clearSearch}
-            style={styles.clearButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Icon
-              name="clear"
-              size={20}
-              color="#8E8E93"
-            />
-          </TouchableOpacity>
+    <TouchableWithoutFeedback onPress={() => {
+      setIsFocused(false);
+      setSuggestions([]);
+      Keyboard.dismiss();
+    }}>
+      <View style={styles.container}>
+        <View style={[styles.searchBar, isFocused && styles.searchBarFocused]}>
+          <Icon
+            name="search"
+            size={24}
+            color={isFocused ? '#04A957' : '#8E8E93'}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.input}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
+            onFocus={handleFocus}
+            placeholder="Search your street ka swad..."
+            placeholderTextColor="#8E8E93"
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={()=>{
+                clearSearch();
+                Keyboard.dismiss();
+              }}
+              style={styles.clearButton}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Icon name="clear" size={20} color="#8E8E93" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {isFocused && suggestions.length > 0 && (
+          <View style={styles.suggestionsContainer}>
+            {suggestions.map((text, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.suggestionItem}
+                onPress={() => handleSuggestionPress(text)}
+              >
+                <Icon name="restaurant" size={16} color="#666" />
+                <Text style={styles.suggestionText}>{text}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
       </View>
-      
-      {/* Search suggestions or quick filters */}
-      {isFocused && searchQuery.length === 0 && (
-        <View style={styles.suggestionsContainer}>
-          <TouchableOpacity
-            style={styles.suggestionItem}
-            onPress={() => setSearchQuery('biryani')}
-          >
-            <Icon name="restaurant" size={16} color="#666" />
-            <Text style={styles.suggestionText}>Biryani</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.suggestionItem}
-            onPress={() => setSearchQuery('chaat')}
-          >
-            <Icon name="restaurant" size={16} color="#666" />
-            <Text style={styles.suggestionText}>Chaat</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.suggestionItem}
-            onPress={() => setSearchQuery('dosa')}
-          >
-            <Icon name="restaurant" size={16} color="#666" />
-            <Text style={styles.suggestionText}>Dosa</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.suggestionItem}
-            onPress={() => setSearchQuery('sweets')}
-          >
-            <Icon name="cake" size={16} color="#666" />
-            <Text style={styles.suggestionText}>Sweets</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -142,7 +152,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5EA',
   },
   searchBarFocused: {
-    borderColor: '#007AFF',
+    borderColor: '#06C167',
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 6,
