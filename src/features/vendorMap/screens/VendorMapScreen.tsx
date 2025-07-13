@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, {Region} from 'react-native-maps';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SearchBar from '../components/UI/SearchBar';
@@ -16,7 +16,10 @@ import BottomSheetTabs from '../components/UI/BottomSheetTabs';
 import { useData } from '../services/DataProvider';
 import { Vendor } from '../../../types/vendor';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import { requestLocationPermission, getCurrentLocation } from '../utils/location';
+import { useClustering } from '../components/Map/useClustering';
+import ClusterMarker from '../components/Map/ClusterMarker';
+import ClusterModal from '../components/Map/ClusterModal';
 
 const VendorMapScreen: React.FC = () => {
   const { vendors, loading } = useData();
@@ -24,10 +27,31 @@ const VendorMapScreen: React.FC = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [isFilterVisible, setFilterVisible] = useState<boolean>(false);
+  const [isClusterModalVisible, setClusterModalVisible] = useState<boolean>(false);
+  const [clusterVendors, setClusterVendors] = useState<Vendor[]>([]);
+  
+  // Map region state
+  const [region, setRegion] = useState<Region>({
+    latitude: 23.0225, // Gandhinagar, Gujarat
+    longitude: 72.5714,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  });
+  //zoom level calculate
+  const mapZoom = useMemo(() => {
+    return Math.round(Math.log(360 / region.latitudeDelta) / Math.LN2);
+  }, [region.latitudeDelta]);
+  
+  // Clustering
+  const { clusteredPoints, getClusterExpansionZoom, getClusterLeaves } = useClustering(
+    vendors,
+    region,
+    mapZoom
+  );
 
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
 
-  const handleVendorPress = (vendor: Vendor) => {
+  const handleVendorPress = useCallback((vendor: Vendor) => {
     setSelectedVendor(vendor);
 
     mapRef.current?.animateCamera({
@@ -41,13 +65,40 @@ const VendorMapScreen: React.FC = () => {
     }, { duration: 1000 });
 
     bottomSheetRef.current?.snapToIndex(1);
-  };
+  },[]);
 
-  const handleMapPress = () => {
+  const handleClusterPress = useCallback((clusterId: number, latitude: number, longitude: number) => {
+    // Get vendors in this cluster
+    const vendorsInCluster = getClusterLeaves(clusterId);
+    
+    if (vendorsInCluster.length > 0) {
+      // If we can expand the cluster, zoom in
+      const expansionZoom = getClusterExpansionZoom(clusterId);
+      
+      if (expansionZoom > mapZoom) {
+        mapRef.current?.animateCamera({
+          center: { latitude, longitude },
+          zoom: expansionZoom,
+        }, { duration: 500 });
+      } else {
+        // Show cluster modal with vendor list
+        setClusterVendors(vendorsInCluster);
+        setClusterModalVisible(true);
+      }
+    }
+  }, [getClusterLeaves, getClusterExpansionZoom, mapZoom]);
+
+  const handleMapPress = useCallback(() => {
     setSelectedVendor(null);
     bottomSheetRef.current?.snapToIndex(0);
-  };
+  },[]);
 
+  const handleRegionChange = useCallback((newRegion: Region) => {
+    setRegion(newRegion);
+  }, []);
+
+
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -55,23 +106,36 @@ const VendorMapScreen: React.FC = () => {
       <MapView
         ref={mapRef}
         style={styles.map}
-        provider={'google'}
-        initialRegion={{
-          latitude: 19.076,
-          longitude: 72.8777,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        }}
+        provider="google"
+        initialRegion={region}
+        onRegionChangeComplete={handleRegionChange}
         onPress={handleMapPress}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        toolbarEnabled={false}
       >
-        {vendors.map((vendor) => (
-          <CustomVendorMarker
-            key={vendor.id}
-            vendor={vendor}
-            onPress={handleVendorPress}
-            isSelected={selectedVendor?.id === vendor.id}
-          />
-        ))}
+        {clusteredPoints.map((point) => {
+          if (point?.isCluster) {
+            return (
+              <ClusterMarker
+                key={point.id}
+                latitude={point.latitude}
+                longitude={point.longitude}
+                count={point.count ?? 0}
+                onPress={() => handleClusterPress(point.clusterId!, point.latitude, point.longitude)}
+              />
+            );
+          } else {
+            return (
+              <CustomVendorMarker
+                key={point?.id}
+                vendor={point?.vendor!}
+                onPress={handleVendorPress}
+                isSelected={selectedVendor?.id === point?.vendor?.id}
+              />
+            );
+          }
+        })}
       </MapView>
 
       <SearchBar />
@@ -83,9 +147,25 @@ const VendorMapScreen: React.FC = () => {
         <Icon name="tune" size={24} color="#2E7D32" /> 
       </TouchableOpacity>
 
+        {/* 📍 My Location Button */}
+      {/* <TouchableOpacity
+        style={styles.myLocationButton}
+        onPress={centerOnUserLocation}
+      >
+        <Icon name="my-location" size={24} color="#ffffff" />
+      </TouchableOpacity> */}
+
       <FilterModal
         visible={isFilterVisible}
         onClose={() => setFilterVisible(false)}
+      />
+
+      {/* Cluster Modal */}
+      <ClusterModal
+        visible={isClusterModalVisible}
+        vendors={clusterVendors}
+        onClose={() => setClusterModalVisible(false)}
+        onVendorSelect={handleVendorPress}
       />
 
       <BottomSheet
@@ -133,6 +213,16 @@ const styles = StyleSheet.create({
   filterIcon: {
     fontSize: 20,
     color: '#fff',
+  },
+  myLocationButton: {
+    position: 'absolute',
+    bottom: 50,
+    right: 15,
+    backgroundColor: '#4C9950',
+    borderRadius: 25,
+    padding: 12,
+    zIndex: 1000,
+    elevation: 5,
   },
   bottomSheetBackground: {
     backgroundColor: '#ffffff',
