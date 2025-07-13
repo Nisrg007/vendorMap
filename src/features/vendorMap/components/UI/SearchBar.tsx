@@ -104,7 +104,7 @@ const SearchBar: React.FC = () => {
               style={styles.clearButton}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Icon name="clear" size={20} color="#8E8E93" />
+              <Icon name="clear" size={20} color="#06C167" />
             </TouchableOpacity>
           )}
         </View>
@@ -137,19 +137,19 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   searchBar: {
-    backgroundColor: '#fff',
+    backgroundColor: 'black',
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderColor: '#06C167', // theme green
+    shadowColor: '#06C167', // soft green glow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
     borderWidth: 1,
-    borderColor: '#E5E5EA',
   },
   searchBarFocused: {
     borderColor: '#06C167',
@@ -163,41 +163,53 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#1C1C1E',
     paddingVertical: 0,
-    fontWeight: '400',
+    fontWeight: '500',
+    color: '#E5FFE9', // soft greenish white
+
   },
   clearButton: {
     marginLeft: 8,
     padding: 4,
     borderRadius: 12,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'black',
+    borderColor: '#06C167', // theme green
+    shadowColor: '#06C167', // soft green glow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+    borderWidth:1
   },
   suggestionsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginTop: 8,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-  },
+  backgroundColor: '#121212', // deep black for modern look
+  borderRadius: 14,
+  marginTop: 10,
+  paddingVertical: 10,
+  paddingHorizontal: 6,
+  borderWidth: 1,
+  borderColor: '#06C167', // theme green
+  shadowColor: '#06C167', // soft green glow
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.25,
+  shadowRadius: 6,
+  elevation: 6,
+},
   suggestionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  suggestionText: {
-    marginLeft: 12,
-    fontSize: 15,
-    color: '#1C1C1E',
-    fontWeight: '400',
-  },
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 14,
+  paddingVertical: 10,
+  borderBottomWidth: 0.5,
+  borderBottomColor: '#2C2C2E', // subtle divider
+},
+
+suggestionText: {
+  marginLeft: 10,
+  fontSize: 15,
+  color: '#E5FFE9', // soft greenish white
+  fontWeight: '500',
+},
 });
 
 export default SearchBar;

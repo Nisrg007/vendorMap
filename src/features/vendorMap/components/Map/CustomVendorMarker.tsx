@@ -15,7 +15,14 @@ const CustomVendorMarker: React.FC<CustomVendorMarkerProps> = ({
   onPress,
   isSelected,
 }) => {
+  const borderColor = !vendor.isOpen
+    ? '#A0A0A0' // gray for closed
+    : vendor.isVeg
+    ? '#4C9950' // green for veg
+    : '#FF3B30'; // red for non-veg
+
   return (
+
     <Marker
       coordinate={{ latitude: vendor.latitude, longitude: vendor.longitude }}
       onPress={() => onPress(vendor)}
@@ -23,18 +30,17 @@ const CustomVendorMarker: React.FC<CustomVendorMarkerProps> = ({
       <View style={styles.wrapper}>
         <View
           style={[
-            styles.outerCircle,
+            styles.markerContainer,
             {
-              borderColor: !vendor.isOpen
-                ? '#999'
-                : vendor.isVeg
-                ? '#4CAF50'
-                : '#FF6B6B',
+              borderColor,
               transform: [{ scale: isSelected ? 1.2 : 1 }],
             },
           ]}
         >
-          <Image source={{ uri: vendor.image }} style={styles.avatar} />
+          <Image 
+            source={vendor.image ? { uri: vendor.image }: require('../../assets/tesla.png')} 
+            style={styles.logo} 
+            />
         </View>
         {isSelected && (
           <View style={styles.label}>
@@ -52,24 +58,23 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
   },
-  outerCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+   markerContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 3,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 4,
   },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  logo: {
+    width: 28,
+    height: 28,
   },
   label: {
     backgroundColor: '#ffffff',
@@ -80,7 +85,7 @@ const styles = StyleSheet.create({
     maxWidth: 100,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
   },
