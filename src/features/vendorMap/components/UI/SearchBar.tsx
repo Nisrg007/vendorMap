@@ -80,7 +80,7 @@ const SearchBar: React.FC = () => {
           <Icon
             name="search"
             size={24}
-            color={isFocused ? '#04A957' : '#8E8E93'}
+            color={isFocused ? '#06C167' : '#06C167'}
             style={styles.searchIcon}
           />
           <TextInput
@@ -90,7 +90,7 @@ const SearchBar: React.FC = () => {
             onSubmitEditing={handleSearch}
             onFocus={handleFocus}
             placeholder="Search your street ka swad..."
-            placeholderTextColor="#8E8E93"
+            placeholderTextColor="#06C167"
             returnKeyType="search"
             autoCapitalize="none"
             autoCorrect={false}
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   searchBar: {
-    backgroundColor: 'black',
+    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 25,
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 6,
-    borderWidth: 1,
+    borderWidth: 1.3,
   },
   searchBarFocused: {
     borderColor: '#06C167',
@@ -164,25 +164,25 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     paddingVertical: 0,
-    fontWeight: '500',
-    color: '#E5FFE9', // soft greenish white
+    fontWeight: '400',
+    color: '#06C167', // soft greenish white
 
   },
   clearButton: {
     marginLeft: 8,
     padding: 4,
     borderRadius: 12,
-    backgroundColor: 'black',
+    backgroundColor: '#fff',
     borderColor: '#06C167', // theme green
     shadowColor: '#06C167', // soft green glow
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 6,
-    borderWidth:1
+    borderWidth:1.3
   },
   suggestionsContainer: {
-  backgroundColor: '#121212', // deep black for modern look
+  backgroundColor: '#fff', // deep black for modern look
   borderRadius: 14,
   marginTop: 10,
   paddingVertical: 10,
@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
 suggestionText: {
   marginLeft: 10,
   fontSize: 15,
-  color: '#E5FFE9', // soft greenish white
-  fontWeight: '500',
+  color: '#06C167', // soft greenish white
+  fontWeight: '400',
 },
 });
 

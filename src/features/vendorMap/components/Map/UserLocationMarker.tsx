@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
   pulseContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    
   },
   pulseRing: {
     position: 'absolute',
